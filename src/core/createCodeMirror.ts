@@ -28,6 +28,7 @@ export interface CreateCodeMirrorProps {
    * Used to add external behavior to the transaction [dispatch function](https://codemirror.net/6/docs/ref/#view.EditorView.dispatch) for this editor view, which is the way updates get routed to the view
    */
   onTransactionDispatched?: (tr: Transaction, view: EditorView) => void;
+  defaultExtantions?: Array<Extension | Accessor<Extension | undefined>>;
 }
 
 /**
@@ -70,6 +71,13 @@ export function createCodeMirror(props?: CreateCodeMirrorProps) {
             props?.onValueChange?.(value);
           }
         },
+        extensions: Array.isArray(props?.defaultExtantions)
+          ? props.defaultExtantions
+              ?.map((ext) => {
+                return typeof ext === 'function' ? ext()! : ext!;
+              })
+              .filter(Boolean)
+          : [],
       });
 
       onMount(() => setEditorView(currentView));
